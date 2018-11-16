@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -39,7 +39,7 @@ public class MainGame extends ApplicationAdapter {
 	BitmapFont font1;
 	Boolean g_over = false;
 
-	
+
 	@Override
 	public void create () {
 		camera = new OrthographicCamera();
@@ -82,7 +82,7 @@ public class MainGame extends ApplicationAdapter {
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
 		camera.update();
 
@@ -117,7 +117,7 @@ public class MainGame extends ApplicationAdapter {
 
 			if (raidrop.y <= met.getPosY() && met.getPosY() <= (raidrop.y + met.getDropY_Drop_SmallY()) && raidrop.x <= met.getPosX() && met.getPosX() <= (raidrop.x + met.getDropX_Drop_SmallX())) {
 				drop_sound.play();
-				System.out.println("коорд капли" + raidrop.x + " " + raidrop.y + "| Коорд клика" + touchPos);
+//				System.out.println("коорд капли" + raidrop.x + " " + raidrop.y + "| Коорд клика" + touchPos);
 				iter.remove();
 				spawnRaindrop();
 				met.plusScore(1);
@@ -125,7 +125,7 @@ public class MainGame extends ApplicationAdapter {
 			}
 		}
 	}
-	
+
 	@Override
 	public void dispose () {
 		background.dispose();
