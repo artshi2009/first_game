@@ -23,59 +23,63 @@ import ru.spaces.artshi2009.Object.Textures;
 
 
 public class MainGame extends ApplicationAdapter {
-	OrthographicCamera camera;
-	SpriteBatch batch;
-	Vector3 touchPos;
-	Array<Rectangle>raindrops;
-    Texture background;
-    Texture drop;
-    Texture drop_small;
-    Texture game_over;
-    Texture replay;
-    Sound drop_sound;
-    Music rain_sound;
-    GameLogic met;
-	BitmapFont font;
-	BitmapFont font1;
-	Boolean g_over = false;
+	private OrthographicCamera camera;
+	private SpriteBatch batch;
+	private Vector3 touchPos;
+	private Array<Rectangle>raindrops;
+	private Texture background;
+	private Texture background2;
+	private Texture background3;
+	private Texture drop;
+	private Texture dropSmall;
+	private Texture gameOver;
+	private Texture replay;
+	private Sound dropSound;
+	private Music rainSound;
+	private GameLogic method;
+	private BitmapFont font;
+	private BitmapFont font1;
+	private Boolean gOver = false;
 
 
 	@Override
-	public void create () {
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 800, 480);
-
+	public void create() {
 		batch = new SpriteBatch();
 		touchPos = new Vector3();
-		met = new GameLogic();
+		method = new GameLogic();
 		font = new BitmapFont();
 		font1 = new BitmapFont();
+		camera = new OrthographicCamera();
+
+		camera.setToOrtho(false, 800, 480);
 
 		font.setColor(Color.LIME);
 		font1.setColor(Color.RED);
 
         background = Textures.BACKGROUND;
+        background2 = Textures.BACKGROUND2;
+        background3 = Textures.BACKGROUND3;
         drop = Textures.DROP;
-        drop_small = Textures.DROP_SMALL;
-        game_over = Textures.GAME_OVER;
+        dropSmall = Textures.DROP_SMALL;
+        gameOver = Textures.GAME_OVER;
         replay = Textures.REPLAY;
 
-        drop_sound = Sounds.DROP_SOUND;
-        rain_sound = Sounds.RAIN_SOUND;
+        dropSound = Sounds.DROP_SOUND;
+        rainSound = Sounds.RAIN_SOUND;
 
-		rain_sound.setLooping(true);
-		rain_sound.play();
+		rainSound.setLooping(true);
+		rainSound.play();
 
 		raindrops = new Array<Rectangle>();
 		spawnRaindrop();
 	}
 
-	public void spawnRaindrop(){
+	private void spawnRaindrop(){
 		Rectangle raindrop = new Rectangle();
-		raindrop.x = MathUtils.random(0, 800-met.getDropX_Drop_SmallX());
-		raindrop.y = 480;
-		raindrop.width = met.getDropX_Drop_SmallX();
-		raindrop.height = met.getDropY_Drop_SmallY();
+		raindrop.x = MathUtils.random(0, method.screenWidth() - method.replacedDropX());
+		raindrop.y = method.screenHeight();
+		raindrop.width = method.replacedDropX();
+		raindrop.height = method.replacedDropY();
 		raindrops.add(raindrop);
 	}
 
@@ -88,41 +92,62 @@ public class MainGame extends ApplicationAdapter {
 
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(background, 0, 480-457);
+		drawBackground();
 		for (Rectangle raindrop:raindrops){
-			batch.draw(met.getFallSmall(), raindrop.x, raindrop.y);
+			batch.draw(method.getFallSmall(), raindrop.x, raindrop.y);
 		}
-		font.draw(batch, "SCORE: " + met.getScore(), 10, 480-10);
-		font1.draw(batch, "Pre-ALPHA", 800-90, 480-10);
-		GameOver();
+		font.draw(batch, "SCORE: " + method.getScore(), 10, method.screenHeight()-10);
+		font1.draw(batch, "Pre-ALPHA", method.screenWidth()-90, method.screenHeight()-10);
+		gameOver();
 		batch.end();
 
+		onClick();
+
+		Iterator<Rectangle> iter = raindrops.iterator();
+		creatingDrop(iter);
+	}
+
+	private void drawBackground() {
+		if (method.getScore() < 51){
+			batch.draw(background, 0, method.screenHeight()-457);
+		} else if (method.getScore() > 50 && method.getScore() < 101){
+			batch.draw(background2, 0, method.screenHeight()-510);
+		} else if (method.getScore() > 100) {
+			batch.draw(background3, 0, method.screenHeight()-480);
+		}
+	}
+
+	private void creatingDrop(Iterator<Rectangle> iter) {
+		while (iter.hasNext()){
+			Rectangle raidrop = iter.next();
+			raidrop.y -= method.getDropVelocity() * Gdx.graphics.getDeltaTime();
+			if (raidrop.y + 92 < 0) {
+				dropSound.play();
+				rainSound.stop();
+				iter.remove();
+				gOver = true;
+			}
+			clickOnDrop(iter, raidrop);
+		}
+	}
+
+	private void clickOnDrop(Iterator<Rectangle> iter, Rectangle raidrop) {
+		if (raidrop.y <= method.getPosY() && method.getPosY() <= (raidrop.y + method.replacedDropY()) &&
+				raidrop.x <= method.getPosX() && method.getPosX() <= (raidrop.x + method.replacedDropX())) {
+			dropSound.play();
+			iter.remove();
+			spawnRaindrop();
+			method.plusScore(1);
+			method.plusDropVelocity(1);
+		}
+	}
+
+	private void onClick() {
 		if (Gdx.input.isTouched()){
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touchPos);
-			met.setPosX((int) touchPos.x);
-			met.setPosY((int) touchPos.y);
-		}
-
-		Iterator<Rectangle> iter = raindrops.iterator();
-		while (iter.hasNext()){
-			Rectangle raidrop = iter.next();
-			raidrop.y -= met.getDrop_velocity() * Gdx.graphics.getDeltaTime();
-			if (raidrop.y + 92 < 0) {
-				drop_sound.play();
-				rain_sound.stop();
-				iter.remove();
-				g_over = true;
-			}
-
-			if (raidrop.y <= met.getPosY() && met.getPosY() <= (raidrop.y + met.getDropY_Drop_SmallY()) && raidrop.x <= met.getPosX() && met.getPosX() <= (raidrop.x + met.getDropX_Drop_SmallX())) {
-				drop_sound.play();
-//				System.out.println("коорд капли" + raidrop.x + " " + raidrop.y + "| Коорд клика" + touchPos);
-				iter.remove();
-				spawnRaindrop();
-				met.plusScore(1);
-				met.plusDrop_velocity(1);
-			}
+			method.setPosX((int) touchPos.x);
+			method.setPosY((int) touchPos.y);
 		}
 	}
 
@@ -130,10 +155,11 @@ public class MainGame extends ApplicationAdapter {
 	public void dispose () {
 		background.dispose();
 		drop.dispose();
-		drop_small.dispose();
-		drop_sound.dispose();
-		rain_sound.dispose();
+		dropSmall.dispose();
+		dropSound.dispose();
+		rainSound.dispose();
 		font.dispose();
+		font1.dispose();
 		batch.dispose();
 	}
 
@@ -152,10 +178,10 @@ public class MainGame extends ApplicationAdapter {
 		super.resume();
 	}
 
-	private void GameOver(){
-		if (g_over == true){
-			batch.draw(game_over, 800/2-157,480/2);
-			batch.draw(replay, 800/2-45, 480/2-45);
+	private void gameOver(){
+		if (gOver){
+			batch.draw(gameOver, (float)method.screenWidth()/2-157,(float)method.screenHeight()/2);
+			batch.draw(replay, (float)method.screenWidth()/2-45, (float)method.screenHeight()/2-45);
 		}
 	}
 }
