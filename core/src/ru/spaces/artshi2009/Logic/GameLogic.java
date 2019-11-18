@@ -4,21 +4,16 @@ import com.badlogic.gdx.graphics.Texture;
 import ru.spaces.artshi2009.Object.Textures;
 
 public class GameLogic {
-    private int posX;
-    private int posY;
+    private int posX = 0;
+    private int posY = 0;
     private int score = 0;
-    private static final int dropX = 54;
-    private static final int dropY = 92;
-    private static final int drop_smallX = 30;
-    private static final int drop_smallY = 51;
 
-    private float drop_left = 200;
-    private float drop_top = -100;
-    private float drop_velocity = 200;
-    private float replay_left = 760;
-    private float replay_top = 22;
+    //    private float dropLeft = 200;
+//    private float dropTop = -100;
+    private float dropVelocity = 200;
+//    private float replayLeft = 760;
+//    private float replayTop = 22;
 
-    Textures tex = new Textures();
 
 
     public int getPosX() {
@@ -37,40 +32,51 @@ public class GameLogic {
         return posY;
     }
 
-    public float getDrop_velocity() {
-        return drop_velocity;
+    public float getDropVelocity() {
+        return dropVelocity;
     }
 
-    public void setDrop_velocity(float drop_velocity) {
-        this.drop_velocity = drop_velocity;
-    }
+//    public void setDropVelocity(float dropVelocity) {
+//        this.dropVelocity = dropVelocity;
+//    }
 
-    public void plusDrop_velocity(int x){
-        this.drop_velocity += x;
+    public void plusDropVelocity(int x){
+        this.dropVelocity += x;
     }
 
     public int getScore() {
         return score;
     }
 
-    public void setScore(int score) {
-        this.score = score;
-    }
+//    public void setScore(int score) {
+//        this.score = score;
+//    }
 
     public void plusScore (int x){
         this.score += x;
     }
 
-    public int getDropX_Drop_SmallX() {
-        return getFallSmall() == tex.DROP_SMALL ? drop_smallX:dropX;
+    public int replacedDropX() {
+        int dropX = 54;
+        int dropSmallX = 30;
+        return getFallSmall() == Textures.DROP_SMALL ? dropSmallX : dropX;
     }
 
-    public int getDropY_Drop_SmallY(){
-        return getFallSmall() == tex.DROP_SMALL ? drop_smallY:dropY;
+    public int replacedDropY(){
+        int dropY = 92;
+        int dropSmallY = 51;
+        return (getFallSmall() == Textures.DROP_SMALL) ? dropSmallY : dropY;
     }
 
     public Texture getFallSmall(){
-        return score > 9 ? tex.DROP_SMALL: tex.DROP;
+        return score > 9 ? Textures.DROP_SMALL : Textures.DROP;
     }
 
+    public int screenWidth() {
+        return 800;
+    }
+
+    public int screenHeight() {
+        return 480;
+    }
 }
